@@ -1,13 +1,13 @@
 <template>
-  <div id="app" class="mt-5">
+  <div id="app" class="container mt-5">
     <nav class="level">
-      <p class="level-item has-text-centered">
+      <router-link to="/" class="level-item has-text-centered">
         <img
           alt="Duck Image"
           src="./assets/rubberDuck.png"
           style="height: 100px"
         />
-      </p>
+      </router-link>
     </nav>
     <router-view />
   </div>
