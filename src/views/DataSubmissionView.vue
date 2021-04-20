@@ -2,13 +2,21 @@
   <div class="columns is-centered">
     <div class="column is-half">
       <div class="box">
-        <form>
+        <form ref="duckDataForm" @submit="submitData($event)">
           <h2 class="subtitle is-1">Duck Data Form</h2>
           <b-field label="Your Name">
             <b-input
               v-model.trim="name"
               required
               placeholder="Kevin Malone"
+            ></b-input>
+          </b-field>
+          <b-field label="How many ducks were fed?">
+            <b-input
+              type="number"
+              v-model.number="numberOfDucksFed"
+              required
+              placeholder="E.g: 100"
             ></b-input>
           </b-field>
           <b-field label="Select a date and time the ducks were fed">
@@ -34,7 +42,11 @@
               <template #empty>No results found</template>
             </b-autocomplete>
           </b-field>
-          <b-field label="Select or type the foods the duck ate">
+          <b-field
+            label="Select or type the foods the duck ate"
+            :type="{ 'is-danger': noFoodTags }"
+            :message="{ 'Please add some food tags': noFoodTags }"
+          >
             <b-taginput
               v-model="foodsFed"
               :data="filteredFoodTags"
@@ -43,7 +55,7 @@
               :open-on-focus="true"
               icon="tags"
               field="name"
-              placeholder="Search or add a food. Press Enter to add the food"
+              placeholder="Search or add a food. Press Enter/Tab/',' to add the food"
               @typing="getFilteredFoodTags"
               :create-tag="addFoodTag"
             >
@@ -52,7 +64,7 @@
           <b-field
             class="mt-1"
             label="How much food were the ducks fed?"
-            v-if="foodsFed.length !== 0"
+            v-if="!noFoodTags"
           >
             <b-field grouped v-for="(food, index) in foodsFed" :key="index">
               <b-field label="Food">
@@ -60,10 +72,11 @@
               </b-field>
               <b-field label="Amount in grams" expanded>
                 <b-input
+                  type="number"
                   v-model.number="food.amount"
-                  required
                   expanded
                   placeholder="Please enter amount in grams"
+                  required
                 ></b-input>
                 <p class="control">
                   <span class="button is-static">Grams</span>
@@ -72,14 +85,16 @@
             </b-field>
           </b-field>
 
-          <b-button type="is-success ">Submit Form</b-button>
+          <b-button type="is-success" native-type="submit">
+            Submit Form
+          </b-button>
         </form>
       </div>
     </div>
   </div>
 </template>
 <script>
-const food = [{ name: "rice", amount: 0 }];
+const food = [{ name: "rice", amount: null }];
 export default {
   name: "DataSubmissionView",
   data: () => {
@@ -94,6 +109,7 @@ export default {
       location: "",
       selectedLocation: null,
       placesService: null,
+      numberOfDucksFed: null,
     };
   },
   metaInfo() {
@@ -107,6 +123,11 @@ export default {
         },
       ],
     };
+  },
+  computed: {
+    noFoodTags() {
+      return this.foodsFed.length === 0;
+    },
   },
   methods: {
     initializePlacesService() {
@@ -128,11 +149,19 @@ export default {
       });
     },
     addFoodTag(tag) {
-      console.log(tag);
       if (tag.name !== undefined) {
         return tag;
       } else {
-        return { name: tag, amount: 0 };
+        return { name: tag, amount: null };
+      }
+    },
+    submitData(event) {
+      event.preventDefault();
+
+      if (!this.$refs.duckDataForm.checkValidity()) {
+        this.$refs.duckDataForm.reportValidity();
+      } else {
+        console.log("Everything is fine. Time to send stuff to backend!");
       }
     },
   },
