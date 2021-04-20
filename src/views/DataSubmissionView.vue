@@ -22,6 +22,18 @@
             >
             </b-datetimepicker>
           </b-field>
+          <b-field label="Location where the ducks were fed">
+            <b-autocomplete
+              v-model="location"
+              :data="filteredLocationData"
+              placeholder="Enter a location (E.g Public Gardens)"
+              icon="search"
+              clearable
+              @select="(option) => (selectedLocation = option)"
+            >
+              <template #empty>No results found</template>
+            </b-autocomplete>
+          </b-field>
           <b-field label="Select or type the foods the duck ate">
             <b-taginput
               v-model="foodsFed"
@@ -78,19 +90,59 @@ export default {
       foodsFed: [],
       foodOptions: food,
       filteredFoodTags: food,
+      filteredLocationData: [],
+      location: "",
+      selectedLocation: null,
+      placesService: null,
+    };
+  },
+  metaInfo() {
+    return {
+      script: [
+        {
+          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_PLACES_API_KEY}&libraries=places`,
+          async: true,
+          defer: true,
+          callback: () => this.initializePlacesService(),
+        },
+      ],
     };
   },
   methods: {
+    initializePlacesService() {
+      this.placesService = new window.google.maps.places.AutocompleteService();
+    },
+    displaySuggestions(predictions, status) {
+      if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
+        this.filteredLocationData = [];
+        return;
+      }
+
+      this.filteredLocationData = predictions.map(
+        (prediction) => prediction.description
+      );
+    },
     getFilteredFoodTags(text) {
       this.filteredFoodTags = this.foodOptions.filter((option) => {
         return option.toString().toLowerCase().indexOf(text.toLowerCase()) >= 0;
       });
     },
     addFoodTag(tag) {
+      console.log(tag);
       if (tag.name !== undefined) {
         return tag;
       } else {
         return { name: tag, amount: 0 };
+      }
+    },
+  },
+  watch: {
+    location(val) {
+      if (val) {
+        this.placesService.getPlacePredictions(
+          { input: this.location },
+          this.displaySuggestions
+        );
       }
     },
   },

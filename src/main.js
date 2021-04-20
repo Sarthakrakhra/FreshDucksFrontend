@@ -5,6 +5,7 @@ import Buefy from "buefy";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
+import VueMeta from "vue-meta";
 import "buefy/dist/buefy.css";
 
 library.add(fas);
@@ -14,6 +15,7 @@ Vue.use(Buefy, {
   defaultIconComponent: FontAwesomeIcon,
   defaultIconPack: "fas",
 });
+Vue.use(VueMeta, { refreshOnceOnNavigation: true });
 
 Vue.config.productionTip = false;
 
