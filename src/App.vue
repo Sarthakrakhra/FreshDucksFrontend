@@ -12,3 +12,8 @@
     <router-view />
   </div>
 </template>
+<style>
+.media {
+  align-items: center !important;
+}
+</style>
