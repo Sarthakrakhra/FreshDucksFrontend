@@ -112,7 +112,8 @@
 <script>
 import axios from "axios";
 
-const food = [{ name: "rice", amount: null }];
+const apiUrl = process.env.VUE_APP_DUCK_API_URL;
+
 export default {
   name: "DataSubmissionView",
   data: () => {
@@ -121,8 +122,8 @@ export default {
       timeFed: null,
       hourFormat: "12",
       foodsFed: [],
-      foodOptions: food,
-      filteredFoodTags: food,
+      foodOptions: [],
+      filteredFoodTags: [],
       filteredLocationData: [],
       location: "",
       selectedLocation: null,
@@ -146,12 +147,21 @@ export default {
       ],
     };
   },
+  async created() {
+    this.getDuckData();
+  },
   computed: {
     noFoodTags() {
       return this.foodsFed.length === 0;
     },
   },
   methods: {
+    async getDuckData() {
+      const response = await axios.get(`${apiUrl}/foodTypes`);
+      const foods = response.data.map((f) => ({ name: f, amount: null }));
+      this.foodOptions = foods;
+      this.filteredFoodTags = foods;
+    },
     initializePlacesService() {
       this.placesService = new window.google.maps.places.AutocompleteService();
     },
@@ -166,8 +176,10 @@ export default {
       );
     },
     getFilteredFoodTags(text) {
-      this.filteredFoodTags = this.foodOptions.filter((option) => {
-        return option.toString().toLowerCase().indexOf(text.toLowerCase()) >= 0;
+      this.filteredFoodTags = this.foodOptions.filter(({ name: foodType }) => {
+        return (
+          foodType.toString().toLowerCase().indexOf(text.toLowerCase()) >= 0
+        );
       });
     },
     addFoodTag(tag) {
@@ -198,10 +210,7 @@ export default {
         };
 
         try {
-          await axios.post(
-            `${process.env.VUE_APP_DUCK_API_URL}/submitDuckData`,
-            dataToSend
-          );
+          await axios.post(`${apiUrl}/submitDuckData`, dataToSend);
 
           window.scrollTo(0, 0);
           this.notificationType = "is-success";
@@ -228,6 +237,7 @@ export default {
       this.location = "";
       this.selectedLocation = "";
       this.numberOfDucksFed = "";
+      this.getDuckData();
       this.isLoading = false;
     },
   },
