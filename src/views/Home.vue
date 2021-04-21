@@ -9,21 +9,21 @@
             tag="router-link"
             type="is-primary"
             class="mb-3"
-            icon-right="pen"
+            icon-right="tasks"
             icon-pack="fas"
             expanded
           >
-            Submit Duck Data
+            Duck Data Questionnaire
           </b-button>
           <b-button
             to="/scientist"
             tag="router-link"
             type="is-info"
             expanded
-            icon-right="atom"
+            icon-right="table"
             icon-pack="fas"
           >
-            Scientist Duck Data
+            Duck Data Submissions
           </b-button>
         </div>
       </div>
