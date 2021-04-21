@@ -6,17 +6,11 @@
       :can-cancel="false"
     ></b-loading>
     <div class="column is-half">
-      <b-notification
-        v-model="showNotification"
+      <Notification
         :type="notificationType"
-        has-icon
-        aria-close-label="Close notification"
-        auto-close
-        :duration="8500"
-        :closable="false"
-      >
-        {{ notificationMsg }}
-      </b-notification>
+        :show-notification="showNotification"
+        :message="notificationMsg"
+      />
       <div class="box">
         <form ref="duckDataForm" @submit="submitData($event)">
           <h2 class="subtitle is-1">Duck Data Form</h2>
@@ -111,6 +105,7 @@
 </template>
 <script>
 import axios from "axios";
+import Notification from "@/components/Notification.vue";
 
 const apiUrl = process.env.VUE_APP_DUCK_API_URL;
 
@@ -134,6 +129,9 @@ export default {
       notificationType: "",
       isLoading: false,
     };
+  },
+  components: {
+    Notification,
   },
   metaInfo() {
     return {
