@@ -1,6 +1,22 @@
 <template>
   <div class="columns is-centered">
+    <b-loading
+      :is-full-page="true"
+      v-model="isLoading"
+      :can-cancel="false"
+    ></b-loading>
     <div class="column is-half">
+      <b-notification
+        v-model="showNotification"
+        type="is-success"
+        has-icon
+        aria-close-label="Close notification"
+        auto-close
+        :duration="8500"
+        :closable="false"
+      >
+        {{ notificationMsg }}
+      </b-notification>
       <div class="box">
         <form ref="duckDataForm" @submit="submitData($event)">
           <h2 class="subtitle is-1">Duck Data Form</h2>
@@ -94,6 +110,8 @@
   </div>
 </template>
 <script>
+import axios from "axios";
+
 const food = [{ name: "rice", amount: null }];
 export default {
   name: "DataSubmissionView",
@@ -110,6 +128,9 @@ export default {
       selectedLocation: null,
       placesService: null,
       numberOfDucksFed: null,
+      showNotification: false,
+      notificationMsg: "",
+      isLoading: false,
     };
   },
   metaInfo() {
@@ -155,14 +176,51 @@ export default {
         return { name: tag, amount: null };
       }
     },
-    submitData(event) {
+    async submitData(event) {
       event.preventDefault();
 
       if (!this.$refs.duckDataForm.checkValidity()) {
         this.$refs.duckDataForm.reportValidity();
       } else {
+        this.isLoading = true;
         console.log("Everything is fine. Time to send stuff to backend!");
+        const formattedFoodTags = this.foodsFed.map((food) => ({
+          food: food.name,
+          amountFed: food.amount,
+        }));
+        const dataToSend = {
+          personName: this.name,
+          timeFed: this.timeFed,
+          duckLocation: this.selectedLocation,
+          numberOfDucksFed: this.numberOfDucksFed,
+          foodsFed: formattedFoodTags,
+        };
+
+        try {
+          await axios.post(
+            `${process.env.VUE_APP_DUCK_API_URL}/submitDuckData`,
+            dataToSend
+          );
+          this.resetFormData();
+
+          window.scrollTo(0, 0);
+          this.showNotification = true;
+          this.notificationMsg = `Thank you for your
+        time and efforts ${this.name}! Your data has been submitted for a scientist to view.`;
+        } catch (err) {
+          console.log("ERROR");
+          console.log(err);
+        }
       }
+    },
+    resetFormData() {
+      this.name = "";
+      this.timeFed = null;
+      this.foodsFed = [];
+      this.location = "";
+      this.selectedLocation = "";
+      this.numberOfDucksFed = "";
+      this.isLoading = false;
     },
   },
   watch: {
