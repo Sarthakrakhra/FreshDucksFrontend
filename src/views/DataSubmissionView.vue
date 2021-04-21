@@ -8,7 +8,7 @@
     <div class="column is-half">
       <b-notification
         v-model="showNotification"
-        type="is-success"
+        :type="notificationType"
         has-icon
         aria-close-label="Close notification"
         auto-close
@@ -130,6 +130,7 @@ export default {
       numberOfDucksFed: null,
       showNotification: false,
       notificationMsg: "",
+      notificationType: "",
       isLoading: false,
     };
   },
@@ -201,15 +202,22 @@ export default {
             `${process.env.VUE_APP_DUCK_API_URL}/submitDuckData`,
             dataToSend
           );
-          this.resetFormData();
 
           window.scrollTo(0, 0);
+          this.notificationType = "is-success";
           this.showNotification = true;
           this.notificationMsg = `Thank you for your
         time and efforts ${this.name}! Your data has been submitted for a scientist to view.`;
+
+          this.resetFormData();
         } catch (err) {
-          console.log("ERROR");
           console.log(err);
+
+          window.scrollTo(0, 0);
+          this.isLoading = false;
+          this.notificationType = "is-danger";
+          this.showNotification = true;
+          this.notificationMsg = `Sorry ${this.name}. There was a problem accepting your data. Please make sure all fields are filled out in a valid format or try again in a few minutes`;
         }
       }
     },
