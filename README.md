@@ -16,6 +16,8 @@ Since there is some sensitive information such as the link to the backend and th
 
 `.env` is a file which holds envrionment variables. These variables can in turn be used to store sensitive data and be accessed from the source code. The variables to add in the `.env` file are provided in the written document submitted with this project.
 
+Eventhough the `.env` file is mentioned in the `.gitignore`, it is vital that envrionment variable files are not committed to the repository. To read more, please visit the [VueJS CLI website](https://cli.vuejs.org/guide/mode-and-env.html#environment-variables)
+
 ### Compile and run application locally
 
 ```
