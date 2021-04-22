@@ -1,6 +1,6 @@
 # Freshducks - Frontend
 
-This mini-project is developed for the Full-Stack Developer Test. You can find a working demo [here](https://fresh-ducks.herokuapp.com/)
+This mini-project is developed as the frontend for the Full-Stack Developer Test. You can find a working demo [here](https://fresh-ducks.herokuapp.com/)
 
 To run the application please look at the commands below. First thing you will want to do is execute the commands in the [Project Setup](#project-setup) section and then you can run the application by executing the command in the [Compiles and run application locally](#compile-and-run-application-locally) section.
 
