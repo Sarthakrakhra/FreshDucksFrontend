@@ -11,6 +11,7 @@
   </b-autocomplete>
 </template>
 <script>
+// this variable is to determine whether the google places api script tag has been added to the website
 let scriptAdded = false;
 
 export default {
@@ -28,6 +29,8 @@ export default {
     scriptAdded = true;
 
     if (skip) {
+      // if the skip value is true it means the component has been reinitialized but
+      // the service has not been so we re-initialize the service as well
       this.initializePlacesService();
       return;
     }
@@ -54,6 +57,7 @@ export default {
         return;
       }
 
+      // getting the descriptions of the places
       this.filteredLocationData = predictions.map(
         (prediction) => prediction.description
       );
@@ -66,6 +70,7 @@ export default {
   watch: {
     location(val) {
       if (val) {
+        // getPlacePredictions is the method which returns the predictions based on what the user has typed in
         this.placesService.getPlacePredictions(
           { input: this.location },
           this.displaySuggestions

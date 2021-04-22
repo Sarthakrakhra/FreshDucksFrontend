@@ -31,8 +31,8 @@ export default {
     Notification,
   },
   async created() {
+    // getting all submissions from the database
     const response = await axios.get(`${apiUrl}`);
-    console.log(response);
     this.submissions = [...response.data];
     this.showNotification = true;
     this.loadingData = false;

@@ -1,5 +1,6 @@
 <template>
   <div class="columns is-centered">
+    <!-- show loader while form is being submitted -->
     <b-loading
       :is-full-page="true"
       v-model="isLoading"
@@ -139,6 +140,7 @@ export default {
     },
 
     getFilteredFoodTags(text) {
+      // filter out the tags that contains the substring of the
       this.filteredFoodTags = this.foodOptions.filter(({ name: foodType }) => {
         return (
           foodType.toString().toLowerCase().indexOf(text.toLowerCase()) >= 0
@@ -155,15 +157,18 @@ export default {
     async submitData(event) {
       event.preventDefault();
 
+      // check if the inputs in the form are valid
       if (!this.$refs.duckDataForm.checkValidity()) {
         this.$refs.duckDataForm.reportValidity();
       } else {
         this.isLoading = true;
         console.log("Everything is fine. Time to send stuff to backend!");
+
         const formattedFoodTags = this.foodsFed.map((food) => ({
           food: food.name,
           amountFed: food.amount,
         }));
+
         const duckLocation = this.$refs.locationInput.selectedLocation;
 
         const dataToSend = {
@@ -175,6 +180,7 @@ export default {
         };
 
         try {
+          // Make request to the backend to POST data
           await axios.post(`${apiUrl}/submitDuckData`, dataToSend);
 
           window.scrollTo(0, 0);
@@ -182,7 +188,6 @@ export default {
           this.showNotification = true;
           this.notificationMsg = `Thank you for your
         time and efforts ${this.name}! Your data has been submitted for a scientist to view.`;
-          this.$refs.locationInput.resetLocation();
           this.resetFormData();
         } catch (err) {
           console.log(err);
@@ -196,12 +201,14 @@ export default {
       }
     },
     resetFormData() {
+      // This function is to reset the data within the form
       this.name = "";
       this.timeFed = null;
       this.foodsFed = [];
       this.location = "";
       this.selectedLocation = "";
       this.numberOfDucksFed = "";
+      this.$refs.locationInput.resetLocation();
       this.getDuckData();
       this.isLoading = false;
     },
