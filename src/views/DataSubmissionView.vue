@@ -41,16 +41,7 @@
             </b-datetimepicker>
           </b-field>
           <b-field label="Location where the ducks were fed">
-            <b-autocomplete
-              v-model="location"
-              :data="filteredLocationData"
-              placeholder="Enter a location (E.g Public Gardens)"
-              icon="search"
-              clearable
-              @select="(option) => (selectedLocation = option)"
-            >
-              <template #empty>No results found</template>
-            </b-autocomplete>
+            <LocationAutoCompleteInput ref="locationInput" />
           </b-field>
           <b-field
             label="Select or type the foods the duck ate"
@@ -106,6 +97,7 @@
 <script>
 import axios from "axios";
 import Notification from "@/components/Notification.vue";
+import LocationAutoCompleteInput from "@/components/LocationAutoCompleteInput.vue";
 
 const apiUrl = process.env.VUE_APP_DUCK_API_URL;
 
@@ -119,10 +111,6 @@ export default {
       foodsFed: [],
       foodOptions: [],
       filteredFoodTags: [],
-      filteredLocationData: [],
-      location: "",
-      selectedLocation: null,
-      placesService: null,
       numberOfDucksFed: null,
       showNotification: false,
       notificationMsg: "",
@@ -132,18 +120,7 @@ export default {
   },
   components: {
     Notification,
-  },
-  metaInfo() {
-    return {
-      script: [
-        {
-          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_PLACES_API_KEY}&libraries=places`,
-          async: true,
-          defer: true,
-          callback: () => this.initializePlacesService(),
-        },
-      ],
-    };
+    LocationAutoCompleteInput,
   },
   async created() {
     this.getDuckData();
@@ -160,19 +137,7 @@ export default {
       this.foodOptions = foods;
       this.filteredFoodTags = foods;
     },
-    initializePlacesService() {
-      this.placesService = new window.google.maps.places.AutocompleteService();
-    },
-    displaySuggestions(predictions, status) {
-      if (status !== window.google.maps.places.PlacesServiceStatus.OK) {
-        this.filteredLocationData = [];
-        return;
-      }
 
-      this.filteredLocationData = predictions.map(
-        (prediction) => prediction.description
-      );
-    },
     getFilteredFoodTags(text) {
       this.filteredFoodTags = this.foodOptions.filter(({ name: foodType }) => {
         return (
@@ -199,10 +164,12 @@ export default {
           food: food.name,
           amountFed: food.amount,
         }));
+        const duckLocation = this.$refs.locationInput.selectedLocation;
+
         const dataToSend = {
           personName: this.name,
           timeFed: this.timeFed,
-          duckLocation: this.selectedLocation,
+          duckLocation,
           numberOfDucksFed: this.numberOfDucksFed,
           foodsFed: formattedFoodTags,
         };
@@ -215,7 +182,7 @@ export default {
           this.showNotification = true;
           this.notificationMsg = `Thank you for your
         time and efforts ${this.name}! Your data has been submitted for a scientist to view.`;
-
+          this.$refs.locationInput.resetLocation();
           this.resetFormData();
         } catch (err) {
           console.log(err);
@@ -237,16 +204,6 @@ export default {
       this.numberOfDucksFed = "";
       this.getDuckData();
       this.isLoading = false;
-    },
-  },
-  watch: {
-    location(val) {
-      if (val) {
-        this.placesService.getPlacePredictions(
-          { input: this.location },
-          this.displaySuggestions
-        );
-      }
     },
   },
 };
